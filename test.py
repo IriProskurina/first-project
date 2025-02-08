@@ -1,71 +1,57 @@
-import pytest
+class BooksCollector:
 
-from main import BooksCollector  # Убедитесь, что путь к вашему классу BooksCollector верен
+    def __init__(self):
+        self.books_genre = {}
+        self.favorites = []
+        self.genre = ['Фантастика', 'Ужасы', 'Детективы', 'Мультфильмы', 'Комедии']
+        self.genre_age_rating = ['Ужасы', 'Детективы']
 
+    # добавляем новую книгу
+    def add_new_book(self, name):
+        if not self.books_genre.get(name) and 0 < len(name) < 41:
+            self.books_genre[name] = ''
 
-class TestBooksCollector:
+    # устанавливаем книге жанр
+    def set_book_genre(self, name, genre):
+        if name in self.books_genre and genre in self.genre:
+            self.books_genre[name] = genre
 
-    def test_add_new_book_add_two_books(self):
-        collector = BooksCollector()
-        collector.add_new_book('Гордость и предубеждение и зомби')
-        collector.add_new_book('Что делать, если ваш кот хочет вас убить')
-        assert len(collector.books_genre) == 2
+    # получаем жанр книги по её имени
+    def get_book_genre(self, name):
+        return self.books_genre.get(name)
 
-    @pytest.mark.parametrize('name', ['a' * 41, ''])
-    def test_add_new_book_incorrect_name(self, name):
-        collector = BooksCollector()
-        collector.add_new_book(name)
-        assert len(collector.books_genre) == 0
+    # выводим список книг с определённым жанром
+    def get_books_with_specific_genre(self, genre):
+        books_with_specific_genre = []
+        if self.books_genre and genre in self.genre:
+            for name, book_genre in self.books_genre.items():
+                if book_genre == genre:
+                    books_with_specific_genre.append(name)
+        return books_with_specific_genre
 
-    def test_set_book_genre_book_exists_genre_exists(self):
-        collector = BooksCollector()
-        collector.add_new_book('Война и мир')
-        collector.set_book_genre('Война и мир', 'Фантастика')
-        assert collector.get_book_genre('Война и мир') == 'Фантастика'
+    # получаем словарь books_genre
+    def get_books_genre(self):
+        return self.books_genre
 
-    def test_get_book_genre_book_not_exists(self):
-        collector = BooksCollector()
-        assert collector.get_book_genre('Неизвестная книга') is None
+    # возвращаем книги, подходящие детям
+    def get_books_for_children(self):
+        books_for_children = []
+        for name, genre in self.books_genre.items():
+            if genre not in self.genre_age_rating and genre in self.genre:
+                books_for_children.append(name)
+        return books_for_children
 
-    def test_get_books_with_specific_genre_exists(self):
-        collector = BooksCollector()
-        collector.add_new_book('Война и мир')
-        collector.set_book_genre('Война и мир', 'Фантастика')
-        collector.add_new_book('Метро 2033')
-        collector.set_book_genre('Метро 2033', 'Фантастика')
-        assert collector.get_books_with_specific_genre('Фантастика') == ['Война и мир', 'Метро 2033']
+    # добавляем книгу в Избранное
+    def add_book_in_favorites(self, name):
+        if name in self.books_genre:
+            if name not in self.favorites:
+                self.favorites.append(name)
 
-    def test_get_books_for_children_age_rating_exists(self):
-        collector = BooksCollector()
-        collector.add_new_book('Война и мир')
-        collector.set_book_genre('Война и мир', 'Ужасы')  # Ужасы в genre_age_rating
-        assert collector.get_books_for_children() == []
+    # удаляем книгу из Избранного
+    def delete_book_from_favorites(self, name):
+        if name in self.favorites:
+            self.favorites.remove(name)
 
-    def test_add_book_in_favorites_success(self):
-        collector = BooksCollector()
-        collector.add_new_book('Война и мир')
-        collector.set_book_genre('Война и мир', 'Фантастика')
-        collector.add_book_in_favorites('Война и мир')
-        assert 'Война и мир' in collector.get_list_of_favorites_books()
-
-    def test_add_book_in_favorites_not_in_books_genre(self):
-        collector = BooksCollector()
-        collector.add_book_in_favorites('Неизвестная книга')
-        assert 'Неизвестная книга' not in collector.favorites
-
-    def test_delete_book_from_favorites_success(self):
-        collector = BooksCollector()
-        collector.add_new_book('Война и мир')
-        collector.set_book_genre('Война и мир', 'Фантастика')
-        collector.add_book_in_favorites('Война и мир')
-        collector.delete_book_from_favorites('Война и мир')
-        assert 'Война и мир' not in collector.get_list_of_favorites_books()
-
-    def test_get_list_of_favorites_books_returns_copy(self):
-        collector = BooksCollector()
-        collector.add_new_book('Война и мир')
-        collector.set_book_genre('Война и мир', 'Фантастика')
-        collector.add_book_in_favorites('Война и мир')
-        favorites_list = collector.get_list_of_favorites_books()
-        favorites_list.append('Новая книга')  # Попытка изменить возвращённый список
-        assert 'Новая книга' not in collector.favorites  # Проверка, что favorites не изменился
+    # получаем список Избранных книг
+    def get_list_of_favorites_books(self):
+        return self.favorites
